@@ -1,6 +1,6 @@
 name: smart_video_info
 description: "Ultra-fast video metadata extraction powered by Smart FFmpeg Engine. No CLI, no process spawning - direct native FFmpeg API."
-version: 1.1.0
+version: 1.2.0
 homepage: https://github.com/Daronec/smart_video_info
 
 environment:
@@ -23,4 +23,6 @@ flutter:
         package: com.daronec.smart_video_info
         pluginClass: SmartVideoInfoPlugin
       ios:
+        pluginClass: SmartVideoInfoPlugin
+      windows:
         pluginClass: SmartVideoInfoPlugin

@@ -1,3 +1,10 @@
+## 1.2.0
+
+- Add Windows support with native Media Foundation API
+- Cross-platform support: Android + iOS + Windows
+- No external dependencies on Windows (uses system Media Foundation)
+- Consistent API across all platforms
+
 ## 1.1.0
 
 - Add iOS support with native AVFoundation

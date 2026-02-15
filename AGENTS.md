@@ -6,7 +6,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 Flutter plugin for ultra-fast video metadata extraction. Uses native FFmpeg API via `smart-ffmpeg-android` library on Android and AVFoundation on iOS — no CLI, no process spawning.
 
-**Currently supported platforms:** Android, iOS
+**Currently supported platforms:** Android, iOS, Windows
 
 ## Architecture
 
@@ -39,6 +39,22 @@ ios/
     └── SmartVideoInfoPlugin.swift # Swift bridge using AVFoundation
 ```
 
+### Windows
+
+```
+lib/
+├── smart_video_info.dart          # Library entry point (exports)
+└── src/
+    ├── smart_video_info_model.dart   # SmartVideoInfo data class
+    └── smart_video_info_plugin.dart  # MethodChannel API
+
+windows/
+├── plugin_cmake/
+│   └── CMakeLists.txt             # Plugin build config
+├── smart_video_info_plugin.h      # Plugin header
+└── smart_video_info_plugin.cpp    # C++ bridge using Media Foundation
+```
+
 ### Data Flow
 
 #### Android
@@ -54,6 +70,14 @@ ios/
 2. Swift plugin receives call
 3. `AVAsset` loads video metadata asynchronously
 4. Metadata extracted from video/audio tracks
+5. JSON response parsed into `SmartVideoInfo` model
+
+#### Windows
+
+1. Dart calls `SmartVideoInfoPlugin.getInfo(path)` via MethodChannel
+2. C++ plugin receives call
+3. `IMFSourceReader` loads video metadata via Media Foundation
+4. Metadata extracted from video/audio streams
 5. JSON response parsed into `SmartVideoInfo` model
 
 ### JSON Schema (v1)
@@ -114,3 +138,7 @@ dart pub publish             # Publish to pub.dev
 ### iOS
 
 - **AVFoundation**: Native Apple framework for media processing (system framework, no external dependencies)
+
+### Windows
+
+- **Media Foundation**: Native Windows framework for media processing (system framework, no external dependencies)

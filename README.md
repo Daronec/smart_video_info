@@ -80,6 +80,7 @@ final info = await SmartVideoInfoPlugin.getInfo(
 | -------- | ------------ |
 | Android  | ✅ Supported |
 | iOS      | ✅ Supported |
+| Windows  | ✅ Supported |
 
 ## Benchmarks
 
