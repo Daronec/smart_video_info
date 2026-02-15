@@ -1,0 +1,21 @@
+# Exclude example build artifacts
+example/build/
+example/.dart_tool/
+example/.flutter-plugins-dependencies
+example/android/.gradle/
+example/android/.kotlin/
+example/android/app/build/
+example/android/build/
+example/android/local.properties
+
+# Exclude Android build artifacts
+android/.gradle/
+android/build/
+android/local.properties
+
+# Exclude IDE files
+.idea/
+*.iml
+
+# Exclude assets (screenshots)
+assets/
