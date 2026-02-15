@@ -1,3 +1,10 @@
+## 1.1.0
+
+- Add iOS support with native AVFoundation
+- Cross-platform support: Android + iOS
+- Consistent API across both platforms
+- No external dependencies on iOS (uses system AVFoundation)
+
 ## 1.0.0
 
 - Initial release

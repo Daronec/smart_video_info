@@ -4,7 +4,7 @@ import 'package:smart_video_info/smart_video_info.dart';
 
 /// Integration tests for real video files
 /// These tests require running on an actual Android device/emulator
-/// Run with: flutter test --device-id=<device> test/integration_test.dart
+/// Run with: flutter test --device-id=DEVICE_ID test/integration_test.dart
 void main() {
   // Skip these tests in CI or when no device is available
   final testAssetsPath = 'test/assets';
