@@ -57,8 +57,8 @@ android/.gradle/
 android/build/
 android/local.properties
 
-# Assets (screenshots for documentation)
-assets/
+# Assets (screenshots for documentation, not test assets)
+/assets/
 
 # GitHub description file (internal use only)
 GITHUB_DESCRIPTION.md
