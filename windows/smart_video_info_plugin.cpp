@@ -1,4 +1,4 @@
-#include "smart_video_info_plugin.h"
+#include "smart_video_info/smart_video_info_plugin.h"
 
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
@@ -291,3 +291,11 @@ void SmartVideoInfoPlugin::HandleMethodCall(
 }
 
 }  // namespace smart_video_info
+
+// C-style registration function implementation
+void SmartVideoInfoPluginRegisterWithRegistrar(
+    FlutterDesktopPluginRegistrarRef registrar) {
+  smart_video_info::SmartVideoInfoPlugin::RegisterWithRegistrar(
+      flutter::PluginRegistrarManager::GetInstance()
+          ->GetRegistrar<flutter::PluginRegistrarWindows>(registrar));
+}

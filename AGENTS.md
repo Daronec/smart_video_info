@@ -49,9 +49,10 @@ lib/
     └── smart_video_info_plugin.dart  # MethodChannel API
 
 windows/
-├── plugin_cmake/
-│   └── CMakeLists.txt             # Plugin build config
-├── smart_video_info_plugin.h      # Plugin header
+├── include/
+│   └── smart_video_info/
+│       └── smart_video_info_plugin.h  # Plugin header
+├── CMakeLists.txt                 # Plugin build config
 └── smart_video_info_plugin.cpp    # C++ bridge using Media Foundation
 ```
 
