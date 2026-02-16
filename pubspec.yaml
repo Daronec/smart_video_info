@@ -24,5 +24,10 @@ flutter:
         pluginClass: SmartVideoInfoPlugin
       ios:
         pluginClass: SmartVideoInfoPlugin
+      macos:
+        pluginClass: SmartVideoInfoPlugin
       windows:
         pluginClass: SmartVideoInfoPlugin
+      web:
+        pluginClass: SmartVideoInfoWeb
+        fileName: src/smart_video_info_web.dart

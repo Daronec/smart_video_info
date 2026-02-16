@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:smart_video_info/smart_video_info.dart';
+// ignore: avoid_web_libraries_in_flutter, deprecated_member_use
+import 'dart:html' as html show Url, Blob;
+// ignore: unused_import
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 void main() {
   runApp(const MyApp());
@@ -44,15 +48,69 @@ class _VideoInfoPageState extends State<VideoInfoPage> {
       );
 
       if (result != null && result.files.isNotEmpty) {
-        final path = result.files.first.path;
-        if (path != null) {
-          await _getVideoInfo(path);
+        final file = result.files.first;
+        
+        // On web, use bytes to create blob URL
+        if (kIsWeb) {
+          final bytes = file.bytes;
+          if (bytes != null) {
+            // Create blob URL from bytes with proper MIME type
+            final mimeType = _getMimeType(file.name);
+            debugPrint('File: ${file.name}, MIME type: $mimeType');
+            final blob = html.Blob([bytes], mimeType);
+            final url = html.Url.createObjectUrlFromBlob(blob);
+            debugPrint('Created blob URL: $url');
+            await _getVideoInfo(url);
+          } else {
+            setState(() {
+              _error = 'Failed to read file bytes on web platform';
+            });
+          }
+        } else {
+          // On native platforms, use path
+          final path = file.path;
+          if (path != null) {
+            await _getVideoInfo(path);
+          } else {
+            setState(() {
+              _error = 'Failed to get file path';
+            });
+          }
         }
       }
     } catch (e) {
+      debugPrint('Error picking file: $e');
       setState(() {
         _error = 'Error picking file: $e';
       });
+    }
+  }
+
+  String _getMimeType(String fileName) {
+    final extension = fileName.toLowerCase().split('.').last;
+    switch (extension) {
+      case 'mp4':
+      case 'm4v':
+        return 'video/mp4';
+      case 'webm':
+        return 'video/webm';
+      case 'ogv':
+      case 'ogg':
+        return 'video/ogg';
+      case 'mov':
+        return 'video/quicktime';
+      case 'avi':
+        return 'video/x-msvideo';
+      case 'mkv':
+        return 'video/x-matroska';
+      case 'flv':
+        return 'video/x-flv';
+      case '3gp':
+        return 'video/3gpp';
+      case 'wmv':
+        return 'video/x-ms-wmv';
+      default:
+        return 'video/mp4'; // Default fallback
     }
   }
 
@@ -68,9 +126,21 @@ class _VideoInfoPageState extends State<VideoInfoPage> {
     final stopwatch = Stopwatch()..start();
 
     try {
+      debugPrint('Getting video info for: $path');
       final info = await SmartVideoInfoPlugin.getInfo(path);
       stopwatch.stop();
 
+      debugPrint('Successfully extracted metadata in ${stopwatch.elapsedMilliseconds}ms');
+      debugPrint('Video dimensions: ${info.width}x${info.height}');
+      debugPrint('Duration: ${info.duration.inMilliseconds}ms');
+      debugPrint('Has audio: ${info.hasAudio}');
+      if (info.hasAudio) {
+        debugPrint('Audio codec: ${info.audioCodec}');
+        debugPrint('Sample rate: ${info.sampleRate}');
+        debugPrint('Channels: ${info.channels}');
+      }
+      debugPrint('Stream count: ${info.streamCount}');
+      
       setState(() {
         _videoInfo = info;
         _extractionTimeMs = stopwatch.elapsedMilliseconds;
@@ -78,12 +148,15 @@ class _VideoInfoPageState extends State<VideoInfoPage> {
       });
     } on SmartVideoInfoException catch (e) {
       stopwatch.stop();
+      debugPrint('SmartVideoInfoException: ${e.message}');
       setState(() {
         _error = e.message;
         _isLoading = false;
       });
-    } catch (e) {
+    } catch (e, stackTrace) {
       stopwatch.stop();
+      debugPrint('Unexpected error: $e');
+      debugPrint('Stack trace: $stackTrace');
       setState(() {
         _error = 'Unexpected error: $e';
         _isLoading = false;

@@ -6,7 +6,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 Flutter plugin for ultra-fast video metadata extraction. Uses native FFmpeg API via `smart-ffmpeg-android` library on Android and AVFoundation on iOS — no CLI, no process spawning.
 
-**Currently supported platforms:** Android, iOS, Windows
+**Currently supported platforms:** Android, iOS, macOS, Windows, Web
 
 ## Architecture
 
@@ -39,6 +39,21 @@ ios/
     └── SmartVideoInfoPlugin.swift # Swift bridge using AVFoundation
 ```
 
+### macOS
+
+```
+lib/
+├── smart_video_info.dart          # Library entry point (exports)
+└── src/
+    ├── smart_video_info_model.dart   # SmartVideoInfo data class
+    └── smart_video_info_plugin.dart  # MethodChannel API
+
+macos/
+├── smart_video_info.podspec       # CocoaPods spec
+└── Classes/
+    └── SmartVideoInfoPlugin.swift # Swift bridge using AVFoundation
+```
+
 ### Windows
 
 ```
@@ -54,6 +69,20 @@ windows/
 │       └── smart_video_info_plugin.h  # Plugin header
 ├── CMakeLists.txt                 # Plugin build config
 └── smart_video_info_plugin.cpp    # C++ bridge using Media Foundation
+```
+
+### Web
+
+```
+lib/
+├── smart_video_info.dart          # Library entry point (exports)
+└── src/
+    ├── smart_video_info_model.dart   # SmartVideoInfo data class
+    ├── smart_video_info_plugin.dart  # MethodChannel API
+    └── smart_video_info_web.dart    # Web implementation (Dart bridge)
+
+web/
+└── smart_video_info.js            # JavaScript implementation using HTML5 Video API
 ```
 
 ### Data Flow
@@ -73,6 +102,14 @@ windows/
 4. Metadata extracted from video/audio tracks
 5. JSON response parsed into `SmartVideoInfo` model
 
+#### macOS
+
+1. Dart calls `SmartVideoInfoPlugin.getInfo(path)` via MethodChannel
+2. Swift plugin receives call
+3. `AVAsset` loads video metadata asynchronously
+4. Metadata extracted from video/audio tracks
+5. JSON response parsed into `SmartVideoInfo` model
+
 #### Windows
 
 1. Dart calls `SmartVideoInfoPlugin.getInfo(path)` via MethodChannel
@@ -80,6 +117,17 @@ windows/
 3. `IMFSourceReader` loads video metadata via Media Foundation
 4. Metadata extracted from video/audio streams
 5. JSON response parsed into `SmartVideoInfo` model
+
+#### Web
+
+1. Dart calls `SmartVideoInfoPlugin.getInfo(url)` (kIsWeb check routes to web implementation)
+2. Dart web layer calls JavaScript via dart:js bridge
+3. JavaScript creates HTML5 Video element
+4. Video element loads metadata from URL (http://, https://, blob:)
+5. JavaScript extracts available metadata (width, height, duration, etc.)
+6. Codec estimated from URL pattern, defaults used for bitrate/fps/rotation
+7. JSON response returned to Dart layer
+8. Parsed into `SmartVideoInfo` model
 
 ### JSON Schema (v1)
 
@@ -143,3 +191,13 @@ dart pub publish             # Publish to pub.dev
 ### Windows
 
 - **Media Foundation**: Native Windows framework for media processing (system framework, no external dependencies)
+
+### macOS
+
+- **AVFoundation**: Native Apple framework for media processing (system framework, no external dependencies)
+
+### Web
+
+- **HTML5 Video API**: Browser-provided API for video metadata extraction (no external dependencies)
+- **dart:html**: Dart web library for DOM manipulation (deprecated, but functional)
+- **dart:js**: Dart-JavaScript interop for calling JavaScript functions

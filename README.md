@@ -80,7 +80,27 @@ final info = await SmartVideoInfoPlugin.getInfo(
 | -------- | ------------ |
 | Android  | ✅ Supported |
 | iOS      | ✅ Supported |
+| macOS    | ✅ Supported |
 | Windows  | ✅ Supported |
+
+## Example App
+
+A complete example application is included in the `example/` directory. It demonstrates:
+
+- Video file selection using native file picker
+- Metadata extraction and display
+- Performance metrics
+- Error handling
+- Material 3 UI design
+
+Run the example:
+
+```bash
+cd example
+flutter run -d macos  # or android, ios, windows
+```
+
+See [example/README.md](example/README.md) for more details.
 
 ## Benchmarks
 

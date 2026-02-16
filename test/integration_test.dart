@@ -141,6 +141,40 @@ void main() {
       expect(info.codec, isNotEmpty);
     });
 
+    test('Broadcast Woman MP4 video', () async {
+      if (!shouldRun) {
+        markTestSkipped('Requires Android/iOS device');
+        return;
+      }
+
+      final path = '$testAssetsPath/Broadcast_Woman.mp4';
+      final info = await SmartVideoInfoPlugin.getInfo(path);
+
+      expect(info.width, greaterThan(0));
+      expect(info.height, greaterThan(0));
+      expect(info.container, 'mp4');
+      expect(info.codec, isNotEmpty);
+      expect(info.duration.inMilliseconds, greaterThan(0));
+    });
+
+    test('MP4 video with audio', () async {
+      if (!shouldRun) {
+        markTestSkipped('Requires Android/iOS device');
+        return;
+      }
+
+      final path = '$testAssetsPath/with_audio.mp4';
+      final info = await SmartVideoInfoPlugin.getInfo(path);
+
+      expect(info.width, greaterThan(0));
+      expect(info.height, greaterThan(0));
+      expect(info.container, 'mp4');
+      expect(info.hasAudio, true);
+      expect(info.audioCodec, isNotNull);
+      expect(info.sampleRate, greaterThan(0));
+      expect(info.channels, greaterThan(0));
+    });
+
     test('MOV QuickTime video', () async {
       if (!shouldRun) {
         markTestSkipped('Requires Android/iOS device');
@@ -264,11 +298,13 @@ void main() {
         '$testAssetsPath/sample_640x360.mov',
         '$testAssetsPath/sample_1280x720.avi',
         '$testAssetsPath/sample_1920x1080.3gp',
+        '$testAssetsPath/Broadcast_Woman.mp4',
+        '$testAssetsPath/with_audio.mp4',
       ];
 
       final infos = await SmartVideoInfoPlugin.getBatch(paths);
 
-      expect(infos.length, 5);
+      expect(infos.length, 7);
       expect(infos[0].resolution, '640x360');
       expect(infos[0].container, anyOf('matroska', 'matroska,webm'));
       expect(infos[1].resolution, '640x360');
@@ -277,6 +313,9 @@ void main() {
       expect(infos[2].container, anyOf('mov', 'mov,mp4,m4a,3gp,3g2,mj2'));
       expect(infos[3].resolution, '1280x720');
       expect(infos[4].resolution, '1920x1080');
+      expect(infos[5].container, 'mp4');
+      expect(infos[6].container, 'mp4');
+      expect(infos[6].hasAudio, true);
     });
 
     test('isSupported returns true for valid video', () async {

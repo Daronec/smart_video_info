@@ -1,9 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 
 import 'smart_video_info_model.dart';
+
+// Conditional import for web
+import 'smart_video_info_web.dart' if (dart.library.io) 'smart_video_info_web_stub.dart' as web_impl;
 
 /// Exception thrown when metadata extraction fails.
 class SmartVideoInfoException implements Exception {
@@ -30,6 +34,7 @@ class SmartVideoInfoPlugin {
   /// Extracts metadata from a single video file.
   ///
   /// [path] must be an absolute path to an existing video file.
+  /// On web, [path] must be a URL (http://, https://, or blob:).
   ///
   /// Throws [SmartVideoInfoException] if extraction fails.
   /// Throws [TimeoutException] if operation exceeds [timeout].
@@ -39,6 +44,11 @@ class SmartVideoInfoPlugin {
     String path, {
     Duration timeout = defaultTimeout,
   }) async {
+    // Use web implementation if running on web
+    if (kIsWeb) {
+      return web_impl.SmartVideoInfoWeb.getInfo(path).timeout(timeout);
+    }
+
     try {
       final jsonString = await _channel
           .invokeMethod<String>('getInfo', {'path': path}).timeout(timeout);
@@ -78,6 +88,11 @@ class SmartVideoInfoPlugin {
       return [];
     }
 
+    // Use web implementation if running on web
+    if (kIsWeb) {
+      return web_impl.SmartVideoInfoWeb.getBatch(paths).timeout(timeout);
+    }
+
     try {
       final results = await _channel.invokeMethod<List<dynamic>>(
           'getBatch', {'paths': paths}).timeout(timeout);
@@ -110,6 +125,11 @@ class SmartVideoInfoPlugin {
   /// Returns `true` if metadata can be extracted, `false` otherwise.
   /// This is a convenience method that catches all exceptions.
   static Future<bool> isSupported(String path) async {
+    // Use web implementation if running on web
+    if (kIsWeb) {
+      return web_impl.SmartVideoInfoWeb.isSupported(path);
+    }
+
     try {
       final info = await getInfo(path);
       return info.width > 0 && info.height > 0;

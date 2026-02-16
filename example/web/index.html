@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="A new Flutter project.">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="smart_video_info_example">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <title>smart_video_info_example</title>
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Smart Video Info Web Plugin - Inline -->
+  <script>
+    class SmartVideoInfoWeb {
+      async getInfo(url) {
+        return new Promise((resolve, reject) => {
+          if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('blob:')) {
+            reject({ success: false, error: 'Web platform only supports URLs (http://, https://, blob:)' });
+            return;
+          }
+
+          const video = document.createElement('video');
+          video.preload = 'auto';  // Changed from 'metadata' to 'auto' to load audio
+          video.muted = true;
+          video.style.display = 'none';
+          document.body.appendChild(video);
+
+          const timeoutId = setTimeout(() => {
+            video.remove();
+            reject({ success: false, error: 'Metadata extraction timed out' });
+          }, 10000);
+
+          // Wait for canplay event to ensure audio tracks are loaded
+          video.addEventListener('canplay', () => {
+            clearTimeout(timeoutId);
+            try {
+              const metadata = this.extractMetadata(video, url);
+              video.remove();
+              resolve({ success: true, data: metadata });
+            } catch (error) {
+              video.remove();
+              reject({ success: false, error: error.message || 'Failed to extract metadata' });
+            }
+          });
+
+          video.addEventListener('error', () => {
+            clearTimeout(timeoutId);
+            video.remove();
+            reject({ success: false, error: video.error ? video.error.message : 'Failed to load video' });
+          });
+
+          video.src = url;
+          video.load();  // Explicitly load the video
+        });
+      }
+
+      extractMetadata(video, url) {
+        const width = video.videoWidth;
+        const height = video.videoHeight;
+        if (width === 0 || height === 0) throw new Error('Invalid video dimensions');
+
+        const duration = Math.round(video.duration * 1000);
+        const urlPath = new URL(url, window.location.href).pathname;
+        const pathParts = urlPath.split('.');
+        const container = pathParts.length > 1 ? pathParts[pathParts.length - 1].toLowerCase() : 'unknown';
+
+        let codec = 'unknown';
+        if (url.includes('.mp4') || url.includes('.m4v')) codec = 'h264';
+        else if (url.includes('.webm')) codec = 'vp8';
+        else if (url.includes('.ogv')) codec = 'theora';
+
+        // Multiple audio detection methods with detailed logging
+        const mozHas = video.mozHasAudio;
+        const webkitBytes = video.webkitAudioDecodedByteCount;
+        const audioTracksLen = video.audioTracks ? video.audioTracks.length : 0;
+
+        console.log('Audio detection - mozHasAudio:', mozHas, 'webkitAudioDecodedByteCount:', webkitBytes, 'audioTracks.length:', audioTracksLen);
+
+        const hasAudio = mozHas || Boolean(webkitBytes) || (audioTracksLen > 0);
+
+        let streamCount = 1;
+        if (hasAudio) streamCount += audioTracksLen || 1;
+
+        const hasSubtitles = video.textTracks && video.textTracks.length > 0;
+
+        const metadata = {
+          width, height, duration, codec,
+          bitrate: 0, fps: 30.0, rotation: 0, container,
+          hasAudio, hasSubtitles, streamCount
+        };
+
+        if (hasAudio) {
+          metadata.audioCodec = 'unknown';
+          metadata.sampleRate = 44100;
+          metadata.channels = 2;
+        }
+
+        console.log('Final metadata - hasAudio:', metadata.hasAudio, 'streamCount:', metadata.streamCount);
+        return metadata;
+      }
+    }
+
+    window.SmartVideoInfoWeb = SmartVideoInfoWeb;
+  </script>
+</head>
+
+<body>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+
+</html>
