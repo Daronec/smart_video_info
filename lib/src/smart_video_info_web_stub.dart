@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'smart_video_info_model.dart';
-import 'smart_video_info_plugin.dart';
 
 /// Stub implementation for non-web platforms
 class SmartVideoInfoWeb {

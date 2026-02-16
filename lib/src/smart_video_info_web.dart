@@ -1,5 +1,5 @@
 import 'dart:async';
-// ignore: avoid_web_libraries_in_flutter, deprecated_member_use
+// ignore: avoid_web_libraries_in_flutter, deprecated_member_use, unused_import
 import 'dart:html' as html;
 // ignore: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'dart:js' as js;
