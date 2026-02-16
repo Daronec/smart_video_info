@@ -16,7 +16,7 @@ Ultra-fast video metadata extraction for Flutter, powered by Smart FFmpeg Engine
 
 ```yaml
 dependencies:
-  smart_video_info: ^1.0.0
+  smart_video_info: ^1.2.0
 ```
 
 ## Usage
@@ -24,13 +24,23 @@ dependencies:
 ```dart
 import 'package:smart_video_info/smart_video_info.dart';
 
-// Single file
+// Single file (native platforms)
 final info = await SmartVideoInfoPlugin.getInfo('/path/to/video.mp4');
 print('Resolution: ${info.resolution}');  // 1920x1080
 print('Duration: ${info.duration}');       // 0:02:00.000000
 print('Codec: ${info.codec}');             // h264
 print('FPS: ${info.fps}');                 // 30.0
 print('Has Audio: ${info.hasAudio}');      // true
+
+// Web platform (use blob URLs)
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:html' as html show Url, Blob;
+
+if (kIsWeb && bytes != null) {
+  final blob = html.Blob([bytes], 'video/mp4');
+  final url = html.Url.createObjectUrlFromBlob(blob);
+  final info = await SmartVideoInfoPlugin.getInfo(url);
+}
 
 // Batch processing (more efficient for multiple files)
 final infos = await SmartVideoInfoPlugin.getBatch([
@@ -82,6 +92,7 @@ final info = await SmartVideoInfoPlugin.getInfo(
 | iOS      | ✅ Supported |
 | macOS    | ✅ Supported |
 | Windows  | ✅ Supported |
+| Web      | ✅ Supported |
 
 ## Example App
 
@@ -97,7 +108,7 @@ Run the example:
 
 ```bash
 cd example
-flutter run -d macos  # or android, ios, windows
+flutter run -d macos  # or android, ios, windows, chrome
 ```
 
 See [example/README.md](example/README.md) for more details.
