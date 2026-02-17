@@ -1,6 +1,6 @@
 name: smart_video_info
 description: "Ultra-fast video metadata extraction powered by Smart FFmpeg Engine. No CLI, no process spawning - direct native FFmpeg API."
-version: 1.2.0
+version: 1.2.1
 homepage: https://github.com/Daronec/smart_video_info
 
 environment:
